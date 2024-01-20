@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_track)
 
+        // get the tracks from the API
         getTracks()
     }
 
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
 
         client.enqueue(object : Callback<ApiResponse> {
 
+            // if the request is successful, get the tracks from the response
             override fun onResponse(
                 call: Call<ApiResponse>,
                 response: Response<ApiResponse>
@@ -42,7 +44,10 @@ class MainActivity : ComponentActivity() {
                 }
 
 
+                // get the tracks from the response
                 tracks = responseBody.feed.tracks
+
+                // display the tracks in the UI
                 renderUI();
             }
 
@@ -55,8 +60,13 @@ class MainActivity : ComponentActivity() {
 
     fun renderUI() {
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+
+        // create the adapter with the tracks
         val adapter = TrackAdapter(tracks)
+
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // set the adapter to the recycler view
         recyclerView.adapter = adapter
     }
 
