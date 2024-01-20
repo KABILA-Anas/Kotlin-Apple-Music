@@ -2,49 +2,63 @@ package com.example.applemusic
 
 import TrackAdapter
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.applemusic.model.parseJson
-import com.example.applemusic.service.ITunesApiService
+import com.example.applemusic.configuration.ApiConfig
+import com.example.applemusic.model.ApiResponse
+import com.example.applemusic.model.JsonTrack
 import com.example.applemusic.ui.theme.AppleMusicTheme
-import com.example.applemusic.viewmodel.MainViewModel
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
+    private lateinit var tracks: List<JsonTrack>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_track)
 
-        // print in terminal the track list
-        val jsonFile = assets.open("apple-music.json")
-        val json = jsonFile.bufferedReader().use { it.readText() }
+        getTracks()
+    }
 
-        val tracks = parseJson(json);
+    fun getTracks() {
+        val client = ApiConfig.getApiService().getTracks()
 
-        tracks.forEach {
-            Log.d("MainActivity", it.toString())
-        }
+        client.enqueue(object : Callback<ApiResponse> {
 
+            override fun onResponse(
+                call: Call<ApiResponse>,
+                response: Response<ApiResponse>
+            ) {
+                val responseBody = response.body()
+                if (!response.isSuccessful || responseBody == null) {
+                    return
+                }
+
+
+                tracks = responseBody.feed.tracks
+                renderUI();
+            }
+
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                t.printStackTrace()
+            }
+
+        })
+    }
+
+    fun renderUI() {
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
         val adapter = TrackAdapter(tracks)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
     }
-
-
-
-
-
 
 
 

@@ -6,9 +6,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.applemusic.R
-import com.example.applemusic.model.Track
+import com.example.applemusic.model.JsonTrack
 
-class TrackAdapter(private val tracks: List<Track>) : RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
+class TrackAdapter(private val tracks: List<JsonTrack>) : RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
 
     inner class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val trackName: TextView = itemView.findViewById(R.id.trackName)
@@ -16,14 +16,14 @@ class TrackAdapter(private val tracks: List<Track>) : RecyclerView.Adapter<Track
         private val category: TextView = itemView.findViewById(R.id.category)
         private val trackImage: ImageView = itemView.findViewById(R.id.trackImage)
 
-        fun bind(track: Track) {
-            trackName.text = track.name
-            artistName.text = track.artistName
-            category.text = track.category
+        fun bind(track: JsonTrack) {
+            trackName.text = track.name.toString()
+            artistName.text = track.artist.label
+            category.text = track.category.attributes.label
 
             // Use Glide or any other image loading library to load the image
             Glide.with(itemView.context)
-                .load(track.imageUrl)
+                .load(track.images[track.images.size - 1].label)
                 .into(trackImage)
         }
     }
